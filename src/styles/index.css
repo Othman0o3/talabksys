@@ -1,0 +1,85 @@
+@import "./colors.css";
+@import "./borders.css";
+
+/* pages */
+@import "./page-styles/login-page.css";
+@import "./page-styles/signup-page.css";
+@import "./page-styles/main-page.css";
+@import "./page-styles/orders-page.css";
+@import "./page-styles/order-details-page.css";
+@import "./page-styles/settlements-page.css";
+@import "./page-styles/company-store-page.css";
+@import "./page-styles/item-page.css";
+@import "./page-styles/item-details-page.css";
+@import "./page-styles/item-move-page.css";
+@import "./page-styles/store-order-details-page.css";
+@import "./page-styles/qr-code-page.css";
+
+/* components */
+@import "./component-styles/nav.css";
+@import "./component-styles/page-card.css";
+@import url("./component-styles/social-links.css");
+@import url("./component-styles/signup-success.css");
+@import url("./component-styles/delivery-order-card.css");
+
+@import url("https://fonts.googleapis.com/css?family=Changa&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic&display=swap"); */
+
+html {
+  background-color: var(--background-color) !important;
+}
+
+body {
+  font-family: "Changa", sans-serif !important;
+  font-size: 1.5rem;
+  height: 100vh;
+  overflow: auto;
+  background-color: var(--background-color) !important;
+}
+
+.main-container {
+  width: 100%;
+  height: 100%;
+  padding: 0 !important;
+  background-color: var(--background-color);
+}
+
+.MuiFormLabel-root.Mui-focused {
+  color: var(--primary-text-color) !important; /* Set the desired label color */
+}
+
+/* .MuiCircularProgress-svg {
+  color: var(--primary-color);
+} */
+
+.row {
+  width: 100%;
+  margin: 10px auto;
+}
+
+.primary-btn {
+  background-color: var(--primary-color) !important;
+  color: var(--secondary-text-color) !important;
+  border-radius: var(--btn-radius) !important;
+  height: 50px;
+  width: 80%;
+  max-width: 400px;
+}
+
+.secondary-btn {
+  background-color: var(--secondary-color) !important;
+  color: var(--secondary-text-color) !important;
+  border-radius: var(--btn-radius) !important;
+  height: 50px;
+  width: 80%;
+  max-width: 400px;
+}
+
+.primary-link {
+  color: var(--primary-color) !important;
+}
+
+.primary-link:hover,
+.primary-link:active {
+  color: var(--primary-color) !important;
+}

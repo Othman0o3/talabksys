@@ -1,0 +1,14 @@
+.qr-code-page {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: start;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 90vh;
+  padding: 20px 10px 10px 10px;
+}
+
+.camera-view {
+  flex-grow: 1;
+}

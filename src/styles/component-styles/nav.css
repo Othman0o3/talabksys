@@ -1,0 +1,25 @@
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+nav :first-child {
+  background-color: #ffffff !important;
+}
+
+.app-bar-content {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.app-bar-content img {
+  width: 120px;
+  height: auto;
+  background-color: transparent;
+  border-radius: 30px;
+  padding-left: 15px;
+}

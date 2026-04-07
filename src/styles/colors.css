@@ -1,0 +1,18 @@
+:root {
+  --primary-color: #dd2429; 
+  --primary-color-30: rgba(221, 36, 41, 0.1); 
+  
+  --secondary-color: #1a1a1a; 
+  
+  --background-color: #ffffff;
+  --background-color-2: #fbfbfb; 
+  
+  --primary-text-color: #1a1a1a;
+  --secondary-text-color: #ffffff;
+  
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-color-2: rgba(221, 36, 41, 0.05);
+
+  --status-settled-color: #009688; 
+  --status-refunded-color: #e91e63; 
+}

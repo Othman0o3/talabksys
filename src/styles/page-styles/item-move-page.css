@@ -1,0 +1,19 @@
+.item-move-page {
+  padding: 10px;
+  min-height: 100vh;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.item-move-page-top-bar {
+  padding: 10px;
+  width: 100%;
+  margin: 20px auto !important;
+  border-radius: 5px;
+  background-color: var(--background-color-2);
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: start;
+  align-items: center;
+  gap: 30px;
+}

@@ -1,0 +1,59 @@
+.delivery-order-card {
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: center;
+  align-items: start;
+  padding: 10px;
+  /* background-color: var(--primary-color); */
+  border-top: 1px solid var(--shadow-color-2);
+  border-left: 1px solid var(--shadow-color-2);
+  box-shadow: 2px 2px 2px var(--shadow-color);
+  border-radius: 10px;
+  width: 325px;
+  max-width: 325px;
+}
+
+.delivery-order-card-header {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 40px;
+  /* padding: 0 20px; */
+  border-bottom: 1px solid var(--primary-color);
+}
+
+.delivery-order-card-body {
+  margin-top: 10px;
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: space-around;
+  align-items: start;
+  padding: 3px;
+  gap: 20px;
+  text-align: start;
+  height: 80%;
+}
+
+.delivery-order-card-body .info {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.delivery-order-card-body .info .title {
+  color: #000;
+  font-weight: 500;
+  margin: 0;
+}
+
+.delivery-order-card-body .info p {
+  color: #000;
+  overflow: hidden;
+  white-space: wrap;
+  max-width: 150px; /* Adjust this value as needed */
+  margin: 0;
+}

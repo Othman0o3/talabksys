@@ -1,0 +1,39 @@
+.search-container {
+    margin-bottom: 1rem;
+  }
+  
+  .input-group {
+    display: flex;
+  }
+  
+  .form-control {
+    flex: 1;
+    margin-right: 0.5rem;
+  }
+  
+  .btn {
+    margin-left: -1px;
+  }
+  
+  .map-container {
+    position: relative;
+  }
+  
+  .leaflet-container {
+    height: 400px;
+    width: 100%;
+    z-index: 0;
+  }
+  
+  .leaflet-control-attribution {
+    display: none;
+  }
+  
+  .marker-popup {
+    max-width: 200px;
+  }
+  
+  .marker-popup h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }

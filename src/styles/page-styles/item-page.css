@@ -1,0 +1,40 @@
+.item-page {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: start;
+  align-items: center;
+  padding: 10px;
+}
+
+.item-page-top-bar {
+  padding: 10px;
+  width: 100%;
+  margin: 20px auto !important;
+  border-radius: 5px;
+  background-color: var(--background-color-2);
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: start;
+  align-items: center;
+  gap: 30px;
+}
+
+.search-input-text-container {
+  border-radius: 20px;
+  padding: 10px;
+  background-color: var(--background-color);
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  flex-grow: 1;
+}
+
+.search-input-text {
+  outline: 0;
+  border: 0;
+  border-radius: 20px;
+  padding: 10px;
+  flex-grow: 1;
+}

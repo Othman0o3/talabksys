@@ -1,0 +1,43 @@
+.orders-page {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: start;
+  align-items: center;
+  gap: 20px;
+  min-height: 100vh;
+  padding: 10px;
+}
+
+.orders-page-tool-bar {
+  padding: 10px;
+  width: 100%;
+  margin: 20px auto !important;
+  border-radius: 5px;
+  background-color: var(--background-color-2);
+}
+
+.orders-tool-bar-col {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 10px;
+}
+
+.orders-tool-bar-buttons-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+}
+
+.orders-tool-bar-dtp-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+  gap: 10px;
+}
