@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { 
-  Box, Grid, Typography, CircularProgress, TextField, 
-  Button, Autocomplete, Radio, RadioGroup, FormControlLabel, 
-  FormControl, FormLabel, Paper, Stack, Divider, IconButton , Container
+import {
+  Box, Grid, Typography, CircularProgress, TextField,
+  Button, Autocomplete, Radio, RadioGroup, FormControlLabel,
+  FormControl, FormLabel, Paper, Stack, Divider, IconButton, Container
 } from "@mui/material";
 
 // Icons
@@ -24,9 +24,9 @@ const OrderDetailsPage = () => {
   const { id } = useParams();
 
   const { loginInfo } = useSelector((state) => state.userLogin);
-  const { cities } = useSelector((state) => state.cities);
-  const { places } = useSelector((state) => state.places);
-  const { loadingAddOrder, loadingUpdateOrder, orders } = useSelector((state) => state.orders);
+  const { cities = [] } = useSelector((state) => state.cities);
+  const { places = [] } = useSelector((state) => state.places);
+  const { loadingAddOrder, loadingUpdateOrder, orders = [] } = useSelector((state) => state.orders);
 
   const [customerName, setCustomerName] = useState("");
   const [phone1, setPhone1] = useState("");
@@ -40,12 +40,12 @@ const OrderDetailsPage = () => {
   const [description, setDescription] = useState("");
   const [transaction, setTransaction] = useState("0");
   const [deliveryPrice, setDeliveryPrice] = useState("0");
-  
-  const [isCooling, setIsCooling] = useState("0"); 
+
+  const [isCooling, setIsCooling] = useState("0");
   const [isPackaging, setIsPackaging] = useState("0");
   const [isFragile, setIsFragile] = useState("0");
   const [canOpen, setCanOpen] = useState("0");
-
+  const [packagingCost, setPackagingCost] = useState("0");
   const [preventUpdate, setPreventUpdate] = useState(false);
 
   // Form Handlers
@@ -59,7 +59,15 @@ const OrderDetailsPage = () => {
     if (preventUpdate) return;
 
     const shDate = new Date(date);
-    const shDateString = `${shDate.getFullYear()}-${String(shDate.getMonth() + 1).padStart(2, "0")}-${String(shDate.getDate()).padStart(2, "0")} 00:00:00.000`;
+    const shDateStrnig = `${shDate.getFullYear()}-${String(
+      shDate.getMonth() + 1
+    ).padStart(2, "0")}-${String(shDate.getDate()).padStart(
+      2,
+      "0"
+    )} 00:00:00.000`;  
+
+    const now = new Date();
+  const timeInString = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
 
     const commonData = {
       CoName: customerName,
@@ -74,6 +82,7 @@ const OrderDetailsPage = () => {
       Amount: amount.toString(),
       Cooling: isCooling,
       Packaging: isPackaging,
+      PackagingCost: Number(packagingCost),
       Fragile: isFragile,
       CanOpen: canOpen
     };
@@ -84,9 +93,14 @@ const OrderDetailsPage = () => {
       dispatch(addOrder({
         ...commonData,
         CitieID: city?.ID,
-        ShDate: shDateString,
+        ShDate: shDateStrnig,
         StorID: loginInfo.BranchID.toString(),
-        TimeIn: new Date().toLocaleTimeString("en-US", { hour12: false }),
+        TimeIn: new Date().toLocaleTimeString("en-US", {
+          hour12: true,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }),        
         UserID: loginInfo.SerUser.toString(),
       }));
     }
@@ -103,10 +117,10 @@ const OrderDetailsPage = () => {
     if (cities.length > 0 && places.length > 0 && id) {
       const order = orders.find((item) => item.ID == id);
       if (order) {
-        setCustomerName(order.CoName);
-        setPhone1(order.Tel1);
-        setPhone2(order.Tel2);
-        setAddress(order.Adress);
+        setCustomerName(order.CoName || "");
+        setPhone1(order.Tel1 || "");
+        setPhone2(order.Tel2 || "");
+        setAddress(order.Adress || "");
         setCity(cities.find((c) => c.CName === order.CName) || null);
         setDate(order.ShDate?.date || Date.now());
         setTransaction(order.RemoneID || "0");
@@ -115,7 +129,14 @@ const OrderDetailsPage = () => {
         setPlace(places.find((p) => p.ID == order.Bar1) || null);
         setAmount(order.Amount || "");
         setPcsCount(order.Count || "");
+        setPackagingCost(order.PackagingCost || "0");
         setPreventUpdate(order.ShCase !== 1);
+        
+        // تحديث الراديو بوتونز إذا كانت موجودة في بيانات الطلب
+        if (order.Cooling) setIsCooling(order.Cooling.toString());
+        if (order.Packaging) setIsPackaging(order.Packaging.toString());
+        if (order.Fragile) setIsFragile(order.Fragile.toString());
+        if (order.CanOpen) setCanOpen(order.CanOpen.toString());
       }
     }
   }, [id, cities, places, orders]);
@@ -148,7 +169,7 @@ const OrderDetailsPage = () => {
                   </Stack>
                   <Autocomplete
                     options={cities}
-                    getOptionLabel={(option) => option.CName}
+                    getOptionLabel={(option) => option.CName || ""}
                     value={city}
                     onChange={(_, v) => setCity(v)}
                     disabled={preventUpdate}
@@ -169,7 +190,7 @@ const OrderDetailsPage = () => {
                 <Stack spacing={2.5}>
                   <Autocomplete
                     options={places}
-                    getOptionLabel={(option) => option.BName}
+                    getOptionLabel={(option) => option.BName || ""}
                     value={place}
                     onChange={(_, v) => setPlace(v)}
                     disabled={preventUpdate}
@@ -180,27 +201,38 @@ const OrderDetailsPage = () => {
                     <TextField required fullWidth type="number" label="عدد القطع" value={pcsCount} onChange={(e) => setPcsCount(e.target.value)} disabled={preventUpdate} />
                   </Stack>
                   <TextField fullWidth multiline rows={2} label="وصف الشحنة (اختياري)" value={description} onChange={(e) => setDescription(e.target.value)} disabled={preventUpdate} />
-                  
                   <Divider />
-                  
                   <Grid container spacing={2}>
                     <Grid item xs={6}>
-                      <RadioField label="سداد التوصيل" value={deliveryPrice} onChange={setDeliveryPrice} options={[{v:"0", l:"المستلم"}, {v:"1", l:"المرسل"}]} disabled={preventUpdate} />
+                      <RadioField label="سداد التوصيل" value={deliveryPrice} onChange={setDeliveryPrice} options={[{ v: "0", l: "المستلم" }, { v: "1", l: "المرسل" }]} disabled={preventUpdate} />
                     </Grid>
                     <Grid item xs={6}>
-                      <RadioField label="سداد الحوالة" value={transaction} onChange={setTransaction} options={[{v:"0", l:"المستلم"}, {v:"1", l:"المرسل"}]} disabled={preventUpdate} />
+                      <RadioField label="سداد الحوالة" value={transaction} onChange={setTransaction} options={[{ v: "0", l: "المستلم" }, { v: "1", l: "المرسل" }]} disabled={preventUpdate} />
                     </Grid>
                     <Grid item xs={6}>
-                      <RadioField label="تحتاج تبريد" value={isCooling} onChange={setIsCooling} options={[{v:"0", l:"نعم"}, {v:"1", l:"لا"}]} disabled={preventUpdate} />
+                      <RadioField label="تحتاج تبريد" value={isCooling} onChange={setIsCooling} options={[{ v: "0", l: "لا" }, { v: "1", l: "نعم" }]} disabled={preventUpdate} />
                     </Grid>
                     <Grid item xs={6}>
-                      <RadioField label="تحتاج تغليف" value={isPackaging} onChange={setIsPackaging} options={[{v:"0", l:"نعم"}, {v:"1", l:"لا"}]} disabled={preventUpdate} />
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Box sx={{ flex: 1 }}>
+                          <RadioField label="تحتاج تغليف" value={isPackaging} onChange={setIsPackaging} options={[{ v: "0", l: "لا" }, { v: "1", l: "نعم" }]} disabled={preventUpdate} />
+                        </Box>
+                        <TextField
+                          label="القيمة"
+                          type="number"
+                          size="small"
+                          value={packagingCost}
+                          onChange={(e) => setPackagingCost(e.target.value)}
+                          disabled={preventUpdate || isPackaging === "0"}
+                          sx={{ width: '80px' }}
+                        />
+                      </Stack>
                     </Grid>
                     <Grid item xs={6}>
-                      <RadioField label="قابلة للكسر" value={isFragile} onChange={setIsFragile} options={[{v:"0", l:"نعم"}, {v:"1", l:"لا"}]} disabled={preventUpdate} />
+                      <RadioField label="قابلة للكسر" value={isFragile} onChange={setIsFragile} options={[{ v: "0", l: "لا" }, { v: "1", l: "نعم" }]} disabled={preventUpdate} />
                     </Grid>
                     <Grid item xs={6}>
-                      <RadioField label="فتح الشحنة" value={canOpen} onChange={setCanOpen} options={[{v:"0", l:"نعم"}, {v:"1", l:"لا"}]} disabled={preventUpdate} />
+                      <RadioField label="فتح الشحنة" value={canOpen} onChange={setCanOpen} options={[{ v: "0", l: "لا" }, { v: "1", l: "نعم" }]} disabled={preventUpdate} />
                     </Grid>
                   </Grid>
                 </Stack>
@@ -241,11 +273,11 @@ const RadioField = ({ label, value, onChange, options, disabled }) => (
     <FormLabel sx={{ fontSize: '0.85rem', fontWeight: 700, mb: 0.5, fontFamily: 'Almarai' }}>{label}</FormLabel>
     <RadioGroup row value={value} onChange={(e) => onChange(e.target.value)}>
       {options.map((opt) => (
-        <FormControlLabel 
-          key={opt.v} 
-          value={opt.v} 
-          control={<Radio size="small" disabled={disabled} />} 
-          label={<Typography sx={{ fontSize: '0.9rem', fontFamily: 'Almarai' }}>{opt.l}</Typography>} 
+        <FormControlLabel
+          key={opt.v}
+          value={opt.v}
+          control={<Radio size="small" disabled={disabled} />}
+          label={<Typography sx={{ fontSize: '0.9rem', fontFamily: 'Almarai' }}>{opt.l}</Typography>}
         />
       ))}
     </RadioGroup>

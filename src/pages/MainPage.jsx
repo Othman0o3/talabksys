@@ -8,10 +8,7 @@ import {
 } from "@mui/material";
 
 // Actions & Constants
-import { 
-  getMainOrdersSummary, 
-  getOrdersAll 
-} from "../redux/actions/orderActions";
+import { getMainOrdersSummary, getOrdersAll } from "../redux/actions/orderActions";
 import { CONFIRM_ADD_ORDER_MESSAGE } from "../redux/constants/orderConstants";
 import OrderSavedMessage from "../components/dialogs/OrderSavedMessage";
 import OrdersDataGrid from "../components/OrdersTable"; 
@@ -86,8 +83,6 @@ const MainPage = () => {
         state: row.ScName,
         city: row.CName,
         phone1: row.Tel1,
-        DelegateNumber1: row.DelegateNumber1,
-        DelegateNumber2: row.DelegateNumber2,
       })));
     }
   }, [orders]);
@@ -95,20 +90,19 @@ const MainPage = () => {
   const getSummaryVal = (key) => mainOrdersSummary?.kind1?.[0]?.[key] || 0;
 
   const statusCards = [
-    { label: "اليوم", key: "Count_todayk1", icon: <AccessTimeIcon />, color: "#2196f3" },
-    { label: "تحت الإجراء", key: "Count_case1k1", icon: <ManageHistoryIcon />, color: "#ff9800" },
+    { label: "اليوم", key: "Count_todayk1", icon: <AccessTimeIcon />, color: "#2196f3", isDate: true },
+    { label: "تحت الاجراء", key: "Count_case1k1", icon: <ManageHistoryIcon />, color: "#ff9800" },
     { label: "قيد الشحن", key: "Count_case3k1", icon: <LocalShippingIcon />, color: "#9c27b0" },
-    { label: "تم تسليمها", key: "Count_case4k1", icon: <ShoppingBagIcon />, color: "#4caf50" },
+    { label: "تم التسليم", key: "Count_case4k1", icon: <ShoppingBagIcon />, color: "#4caf50" },
     { label: "راجع", key: "Count_case7k1", icon: <ReplyAllIcon />, color: "#f44336" },
-    { label: "تم الإسترداد", key: "Count_case10k1", icon: <SettingsBackupRestoreIcon />, color: "#e91e63" },
-    { label: "تم تسويتها", key: "Count_case5k1", icon: <TaskAltIcon />, color: "#009688" },
+    { label: "تم الاسترداد", key: "Count_case10k1", icon: <SettingsBackupRestoreIcon />, color: "#e91e63" },
+    { label:"تمت التسوية", key: "Count_case5k1", icon: <TaskAltIcon />, color: "#009688" },
   ];
 
   return (
     <Box sx={{ bgcolor: '#fbfbfb', minHeight: '100vh', py: 4, direction: 'rtl' }}>
       <OrderSavedMessage />
       <Container maxWidth="xl">
-        
         <Box sx={{ textAlign: 'center', mb: 6, mt: 2 }}>
           <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, fontFamily: 'Almarai' }}>تتبع شحنتك</Typography>
           <Paper elevation={0} sx={{ display: 'flex', mx: 'auto', maxWidth: 600, borderRadius: '50px', p: 0.8, border: '1px solid #ddd' }}>
@@ -134,7 +128,20 @@ const MainPage = () => {
             <Grid container spacing={1.5} sx={{ mb: 5 }}>
               {statusCards.map((item, index) => (
                 <Grid item xs={6} sm={4} md={3} lg={1.7} key={index} sx={{ flexGrow: 1 }}>
-                  <StatCard title={item.label} value={getSummaryVal(item.key)} icon={item.icon} color={item.color} onClick={() => navigate("/orders")} />
+                  <StatCard 
+                    title={item.label} 
+                    value={getSummaryVal(item.key)} 
+                    icon={item.icon} 
+                    color={item.color} 
+                    onClick={() => {
+                      if (item.isDate) {
+                        const today = new Date().toISOString().split('T')[0];
+                        navigate("/orders", { state: { filterDate: today } });
+                      } else {
+                        navigate("/orders", { state: { filterStatus: item.label } });
+                      }
+                    }} 
+                  />
                 </Grid>
               ))}
             </Grid>

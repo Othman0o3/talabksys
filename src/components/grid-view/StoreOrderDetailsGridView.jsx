@@ -68,6 +68,7 @@ const StoreOrderDetailsGridView = ({
         style={{ backgroundColor: "var(--background-color)" }}
         rows={rows}
         columns={columns}
+        getRowId={(row) => row.itemName}
         checkboxSelection
         disableRowSelectionOnClick
       />

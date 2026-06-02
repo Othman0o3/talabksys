@@ -25,6 +25,7 @@ import StoreIcon from "@mui/icons-material/Store";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import PaymentsIcon from '@mui/icons-material/Payments'; // أيقونة للأسعار
 
 import {
   changeOrderSearchType,
@@ -100,8 +101,8 @@ const NavDrawer = ({ open, setOpen }) => {
 
         <Divider sx={{ my: 1, bgcolor: "var(--primary-color)", opacity: 0.2 }} />
 
-        {renderItem("سياسة الشحن", "/policy.html", <PolicyIcon />, null, () => window.open("/policy.html", "_blank"))}
-        {renderItem("إتفاقية المستخدم", "/agreement.html", <HandshakeIcon />, null, () => window.open("/agreement.html", "_blank"))}
+        {renderItem("سياسات الشحن", null, <PolicyIcon />, null, () => window.open("https://talabk.ly/سياسات الشحن", "_blank"))}
+        {renderItem("أسعار الشحن", null, <PaymentsIcon />, null, () => window.open("https://talabk.ly/الأسعار", "_blank"))}
 
         <ListItem disablePadding>
           <ListItemButton onClick={() => window.open("https://wa.me/+218927716601", "_blank")}>

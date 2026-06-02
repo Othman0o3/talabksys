@@ -62,14 +62,12 @@ export const getDeliverySettlements = (branchId) => async (dispatch) => {
   }
 };
 
-// الأكشن الجديد الخاص بمالية المسوق
 export const getMarketerFinance = (branchId) => async (dispatch) => {
   try {
     dispatch({
       type: consts.GET_MARKETER_FINANCE_REQUEST,
     });
 
-    // تأكد من مسار الـ PHP الصحيح الخاص بالمسوق
     const { data } = await axiosFrmData.post("misuq/Misuq_almahfaza.php", {
       BranchID: branchId,
     });

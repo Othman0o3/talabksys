@@ -2,11 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Container } from "react-bootstrap";
-import { Button, TextField, Box, Typography } from "@mui/material";
+import { 
+  Button, TextField, Box, Typography, 
+  FormControlLabel, Checkbox 
+} from "@mui/material";
 import { clearUserRegister, userRegister } from "../redux/actions/userActions";
 import AlertMessage from "../components/AlertMessage";
 import SignupSuccess from "../components/SignupSuccess";
 import SocialLinks from "../components/SocialLinks";
+import { addAlertMessage } from "../redux/actions/systemActions";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -21,6 +25,8 @@ const SignupPage = () => {
   const [phone2, setPhone2] = useState("");
   const [phone3, setPhone3] = useState("");
   const [address, setAddress] = useState("");
+  
+  const [agreed, setAgreed] = useState(false);
 
   const handlePhone1Change = (e) => {
     const inputValue = e.target.value;
@@ -44,7 +50,19 @@ const SignupPage = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+      e.preventDefault();
+    
+      if (!agreed) {
+        dispatch(addAlertMessage("يرجى الموافقة على شروط وسياسات العمل قبل إنشاء الحساب.", "error")); 
+      return;
+      }
+
+      dispatch(
+        userRegister(email, storeName, scopeOfWork, phone1, phone2, phone3, address)
+      );
+    
+    
+
     dispatch(
       userRegister(
         email,
@@ -59,7 +77,6 @@ const SignupPage = () => {
   };
 
   useEffect(() => {
-    // تنظيف الحالة عند مغادرة الصفحة
     return () => {
       dispatch(clearUserRegister());
     };
@@ -173,12 +190,45 @@ const SignupPage = () => {
               onChange={(e) => setAddress(e.target.value)}
             />
 
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  sx={{
+                    color: "var(--primary-color)",
+                    "&.Mui-checked": {
+                      color: "var(--primary-color)",
+                    },
+                  }}
+                />
+              }
+              label={
+                <Typography variant="body2" sx={{ fontFamily: "Almarai" }}>
+                  أوافق على{" "}
+                  <a
+                    href="https://talabk.ly/سياسات الشحن"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "red",
+                      fontWeight: "bold",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    شروط وسياسات العمل
+                  </a>
+                </Typography>
+              }
+              sx={{ mt: 1, mb: 1, width: "100%" }}
+            />
+
             <Button
               variant="contained"
               type="submit"
               fullWidth
               sx={{
-                mt: 3,
+                mt: 2,
                 mb: 2,
                 bgcolor: "var(--primary-color) !important",
                 fontFamily: "Almarai",

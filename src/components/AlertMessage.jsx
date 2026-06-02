@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Stack, Alert, Fade } from "@mui/material";
 import { removeAlertMessage } from "../redux/actions/systemActions";
 import { motion } from "framer-motion";
-
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 
 const AlertMessage = ({}) => {

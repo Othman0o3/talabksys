@@ -25,7 +25,6 @@ import {
 import { CONFIRM_ADD_STORE_ORDER_MESSAGE } from "../redux/constants/orderConstants";
 import StoreOrderSavedMessage from "../components/dialogs/StoreOrderSavedMessage";
 
-// دالة تنسيق حالة الطلب
 const getStatusStyle = (status) => {
   const styles = {
     "تم التسليم": { color: "success" },
@@ -123,6 +122,16 @@ const StoreOrderPage = () => {
     setPagination(model);
   };
 
+  // --- Row Click Handler ---
+  const handleRowClick = (params) => {
+    // Navigate to the order details page using the row's ID
+    // Based on your previous code, it seems to be '/order-view/' for marketer orders,
+    // but the button above uses '/store-order-details'. 
+    // I will use '/order-view/' as it matches the OrderDetailsView component we worked on earlier.
+    // If your route is different, please adjust the path below.
+    navigate(`/store-order-details/${params.id}`);
+  };
+
   useEffect(() => {
     if (storeOrders) {
       setRows(storeOrders.map((row) => ({
@@ -154,7 +163,6 @@ const StoreOrderPage = () => {
     <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh', direction: 'rtl', p: { xs: 2, md: 4 } }}>
       <StoreOrderSavedMessage />
       
-      {/* Header Section */}
       <Box sx={{ mb: 3 }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
           <Stack direction="row" alignItems="center" spacing={2}>
@@ -221,7 +229,7 @@ const StoreOrderPage = () => {
                     paginationModel={pagination}
                     onPaginationModelChange={handlePaginationChange}
                     disableRowSelectionOnClick
-                    onRowClick={(e) => navigate(`/store-order-details/${e.row.id}`)}
+                    onRowClick={handleRowClick}
                     sx={{
                         border: 'none',
                         fontFamily: 'Almarai',
@@ -232,7 +240,7 @@ const StoreOrderPage = () => {
                         },
                         '& .MuiDataGrid-cell': { 
                             borderBottom: '1px solid #f5f5f5',
-                            cursor: 'pointer'
+                            cursor: 'pointer' 
                         },
                         '& .MuiDataGrid-footerContainer': {
                             borderTop: '1px solid #eee'

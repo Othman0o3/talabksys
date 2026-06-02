@@ -23,7 +23,6 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
 
-// نفس الـ StatCard المستعمل في الصفحة الرئيسية لتوحيد الثيم
 const StatCard = ({ title, value, icon, color, onClick }) => (
   <Card 
     onClick={onClick}
@@ -74,7 +73,7 @@ const CompanyStorePage = () => {
 
   const statusCards = [
     { label: "اليوم", key: "Count_todayk2", icon: <AccessTimeIcon />, type: "today", color: "#2196f3" },
-    { label: "تحت الإجراء", key: "Count_case1k2", icon: <ManageHistoryIcon />, type: "proccessing", color: "#ff9800" },
+    { label: "تحت الاجراء", key: "Count_case1k2", icon: <ManageHistoryIcon />, type: "proccessing", color: "#ff9800" },
     { label: "قيد الشحن", key: "Count_case3k2", icon: <LocalShippingIcon />, type: "shipping", color: "#9c27b0" },
     { label: "تم تسليمها", key: "Count_case4k2", icon: <ShoppingBagIcon />, type: "delivered", color: "#4caf50" },
     { label: "راجع", key: "Count_case7k2", icon: <ReplyAllIcon />, type: "returnedBack", color: "#f44336" },
@@ -106,6 +105,7 @@ const CompanyStorePage = () => {
                   value={getStoreVal('Total_k2')} 
                   icon={<EqualizerIcon />} 
                   color="var(--secondary-color)" 
+                  onClick={() => openStoreOrders("all")} 
                 />
               </Grid>
               <Grid item xs={6} md={6}>
@@ -137,13 +137,12 @@ const CompanyStorePage = () => {
                     icon={<AttachMoneyIcon />} 
                     color="#607d8b" 
                     onClick={() => {
-                        dispatch(changeStoreOrderSearchType("show-room"));
-                        navigate("/show-room-orders");
+                      dispatch(changeStoreOrderSearchType("show-room"));
+                        navigate("/show-room-orders"); 
                     }} 
                   />
               </Grid>
             </Grid>
-
           </>
         )}
       </Container>

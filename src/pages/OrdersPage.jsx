@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { 
   Box, IconButton, CircularProgress, TextField, Button, 
@@ -15,34 +15,25 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ClearIcon from "@mui/icons-material/Clear";
 
 // Actions
-import {
-  changeOrderSearchType,
-  getOrdersAll,
-  getOrdersByDate,
-} from "../redux/actions/orderActions";
+import { changeOrderSearchType, getOrdersAll, getOrdersByDate } from "../redux/actions/orderActions";
 import { setOrdersSearchDate } from "../redux/actions/systemActions";
 import OrderSavedMessage from "../components/dialogs/OrderSavedMessage";
 
 const getStatusStyle = (status) => {
   const styles = {
-    "تم التسليم": { color: "success" },
+    "تم تسليمها": { color: "success" },
     "تمت التسوية": { color: "success" },
-    "مكتمل": { color: "success" },
-    "تحت الاجراء": { color: "info" },
-    "قيد التنفيذ": { color: "info" },
+    "تحت الإجراء": { color: "info" },
     "قيد الشحن": { color: "secondary" },
-    "راجع في الطريق الى الفرع": { color: "secondary" },
     "راجع": { color: "error" },
-    "تم الالغاء": { color: "error" },
-    "تم الاسترداد": { color: "warning" },
-    "في المكتب انتظار الاستلام": { color: "default" },
-    "تأجيل": { color: "default" },
+    "تم الإسترداد": { color: "warning" },
   };
   return styles[status] || { color: "default" };
 };
 
 const OrdersPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
 
   const { loginInfo } = useSelector((state) => state.userLogin);
@@ -66,14 +57,27 @@ const OrdersPage = () => {
       }
     },
     { field: "phone1", headerName: "الهاتف 1", width: 130 },
-    { field: "phone2", headerName: "الهاتف 2", width: 130 },
     { field: "city", headerName: "المدينة", width: 120 },
     { field: "address", headerName: "العنوان", width: 300 },
-    { field: "DelegateNumber1", headerName: "رقم المندوب 1", width: 150 },
-    { field: "DelegateNumber2", headerName: "رقم المندوب 2", width: 150 },
-    { field: "returnState", headerName: "الإرجاع", width: 130 },
-    { field: "reason", headerName: "السبب", width: 250 },
   ];
+
+  // استقبال الفلتر (سواء نص حالة أو تاريخ اليوم)
+  useEffect(() => {
+    if (location.state?.filterStatus) {
+      setSearchText(location.state.filterStatus);
+    }
+
+    if (location.state?.filterDate) {
+      const targetDate = location.state.filterDate;
+      setLocalDateFrom(targetDate);
+      setLocalDateTo(targetDate);
+      
+      // تنفيذ البحث بالتاريخ تلقائياً
+      setIsDateSearching(true);
+      dispatch(changeOrderSearchType("date"));
+      dispatch(getOrdersByDate(loginInfo.BranchID, targetDate, targetDate));
+    }
+  }, [location.state, dispatch, loginInfo.BranchID]);
 
   const handleSearch = () => {
     setIsDateSearching(true);
@@ -83,7 +87,15 @@ const OrdersPage = () => {
 
   useEffect(() => {
     if (orders) {
-      setRows(orders.map((row) => ({
+      let data = orders;
+      if (searchText) {
+        data = orders.filter(item => 
+          item.ScName?.includes(searchText) || 
+          item.CoName?.toLowerCase().includes(searchText.toLowerCase()) ||
+          item.ID?.toString().includes(searchText)
+        );
+      }
+      setRows(data.map((row) => ({
         id: row.ID,
         orderNumber: row.ID,
         date: new Date(row.ShDate.date).toLocaleDateString("en-GB"),
@@ -92,14 +104,10 @@ const OrdersPage = () => {
         phone1: row.Tel1,
         phone2: row.Tel2,
         address: row.Adress,
-        DelegateNumber1: row.DelegateNumber1, 
-        DelegateNumber2: row.DelegateNumber2,
         city: row.CName,
-        returnState: row.ReName,
-        reason: row.ResText,
       })));
     }
-  }, [orders]);
+  }, [orders, searchText]);
 
   return (
     <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh', direction: 'rtl', p: { xs: 2, md: 4 } }}>
@@ -146,7 +154,7 @@ const OrdersPage = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}><CircularProgress /></Box>
         ) : (
             <Box sx={{ width: '100%', overflowX: 'auto' }}> 
-                <Box sx={{ minWidth: 1800 }}> 
+                <Box sx={{ minWidth: 1200 }}> 
                     <DataGrid
                         rows={rows}
                         columns={columns}
@@ -155,22 +163,11 @@ const OrdersPage = () => {
                         rowCount={totalRecords || 0}
                         pageSizeOptions={[50]}
                         initialState={{ pagination: { paginationModel: { pageSize: 50 } } }}
-                        disableRowSelectionOnClick
                         onRowClick={(e) => navigate(`/order-details/${e.row.id}`)}
                         sx={{
                             border: 'none',
-                            '& .MuiDataGrid-main': {
-                                overflow: 'visible', 
-                            },
-                            '& .MuiDataGrid-columnHeaders': { 
-                                bgcolor: '#fafafa', 
-                                fontFamily: 'Almarai',
-                                borderBottom: '1px solid #eee'
-                            },
-                            '& .MuiDataGrid-cell': { fontFamily: 'Almarai' },
-                            '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
-                                position: 'relative !important',
-                            }
+                            '& .MuiDataGrid-columnHeaders': { bgcolor: '#fafafa', fontFamily: 'Almarai' },
+                            '& .MuiDataGrid-cell': { fontFamily: 'Almarai' }
                         }}
                     />
                 </Box>

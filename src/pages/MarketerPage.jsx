@@ -1,144 +1,184 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Container, Typography, Grid, Box, CircularProgress, Button, Paper } from '@mui/material';
+import { 
+  Container, Typography, Grid, Box, CircularProgress, 
+  Button, Paper, Chip 
+} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+
+// Icons
 import AddIcon from '@mui/icons-material/Add';
-import StatCard from '../components/StatCard';
 import EqualizerIcon from "@mui/icons-material/Equalizer";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import StorefrontIcon from '@mui/icons-material/Storefront';
-import { getMarketerSummary , getMarketerOrders} from '../redux/actions/orderActions';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+
+// Components & Actions
+import StatCard from '../components/StatCard';
+import { getMarketerSummary, getMarketerOrders } from '../redux/actions/orderActions';
+import { getMarketerFinance } from '../redux/actions/settlementsACtions'; 
+
+const getStatusStyle = (status) => {
+  const styles = {
+    "تم التسليم": { color: "success" },
+    "تمت التسوية": { color: "success" },
+    "مكتمل": { color: "success" },
+    "تحت الاجراء": { color: "info" },
+    "قيد التنفيذ": { color: "info" },
+    "قيد الشحن": { color: "secondary" },
+    "راجع في الطريق الى الفرع": { color: "secondary" },
+    "راجع": { color: "error" },
+    "تم الالغاء": { color: "error" },
+    "تم الاسترداد": { color: "warning" },
+    "في المكتب انتظار الاستلام": { color: "default" },
+    "تأجيل": { color: "default" },
+  };
+  return styles[status] || { color: "default" };
+};
 
 const MarketerPage = () => {
-const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [openDialog, setOpenDialog] = useState(false); 
   
-  const userLogin = useSelector((state) => state.userLogin); 
-  const { loginInfo } = userLogin; 
-
+  const { loginInfo } = useSelector((state) => state.userLogin); 
   const marketerSummary = useSelector((state) => state.marketerSummary) || {};
-  const { loading, summary, error } = marketerSummary;
-
+  const { loading: summaryLoading, summary } = marketerSummary;
   const marketerOrders = useSelector((state) => state.marketerOrders) || { orders: [] };
 
-useEffect(() => {
+  // Financial data from Redux
+  const { financeData = [] } = useSelector((state) => state.marketerFinance);
+
+  // Calculate financial data
+  const { totalProfit, totalDebt } = useMemo(() => {
+    const profit = financeData.reduce((acc, item) => acc + (parseFloat(item.Debit) || 0), 0);
+    const orders = Array.isArray(marketerOrders?.orders) ? marketerOrders.orders : [];
+    const debt = orders.reduce((acc, order) => {
+        if (order.ScName === "تم التسليم") {
+            return acc + (parseFloat(order.Total) || 0);
+        }
+        return acc;
+    }, 0);
+    return { totalProfit: profit, totalDebt: debt };
+  }, [financeData, marketerOrders.orders]);
+
+  useEffect(() => {
     if (loginInfo && loginInfo.BranchID) {
         const id = loginInfo.BranchID;
         dispatch(getMarketerSummary(id));
-        dispatch(getMarketerOrders(loginInfo.BranchID, false));
+        dispatch(getMarketerOrders(id, false));
+        dispatch(getMarketerFinance(id)); 
     }
   }, [dispatch, loginInfo]);
 
-const columns = [
-  { field: 'ID', headerName: 'رقم الشحنة', width: 100 },
-  { field: 'ShName', headerName: 'المتجر', width: 150 },
-  { field: 'CoName', headerName: 'الزبون', width: 180 },  
-  { field: 'Tel1', headerName: 'الهاتف', width: 130 },
-  { field: 'Total', headerName: 'إجمالي الطلب', width: 120, renderCell: (params) => `${params.value} د.ل` },
-  { 
-    field: 'ShCase', 
-    headerName: 'الحالة', 
-    width: 130,
-    renderCell: (params) => {
-      return params.value === 4 ? "تم التسليم" : "قيد التنفيذ";
+  // دالة التعامل مع الانتقال عند الضغط
+  const handleSelection = (newSelectionModel) => {
+    if (newSelectionModel.length > 0) {
+      const selectedId = newSelectionModel[0];
+      navigate(`/order-view/${selectedId}`);
     }
-  },
-];
-const safeRows = Array.isArray(marketerOrders?.orders) 
-  ? marketerOrders.orders.filter(row => typeof row === 'object' && row !== null && row.ID !== undefined) 
-  : [];
+  };
+
+  const columns = [
+    { field: 'ID', headerName: 'رقم الشحنة', width: 100 },
+    { field: 'ShName', headerName: 'المتجر', width: 150 },
+    { field: 'CoName', headerName: 'الزبون', width: 180 },  
+    { field: 'Tel1', headerName: 'الهاتف', width: 130 },
+    { 
+      field: 'Total', 
+      headerName: 'إجمالي الطلب', 
+      width: 120, 
+      renderCell: (params) => `${Number(params.value || 0).toLocaleString()} د.ل` 
+    },
+    { 
+      field: 'ScName', 
+      headerName: 'الحالة', 
+      width: 180,
+      renderCell: (params) => {
+        const statusText = params.value; 
+        const style = getStatusStyle(statusText);
+        return (
+          <Chip 
+            label={statusText || "غير محدد"} 
+            color={style.color} 
+            size="small" 
+            sx={{ fontWeight: 'bold', fontFamily: 'Almarai' }} 
+          />
+        );
+      }
+    },
+  ];
+
+  const safeRows = Array.isArray(marketerOrders?.orders) 
+    ? marketerOrders.orders.filter(row => typeof row === 'object' && row !== null && row.ID !== undefined) 
+    : [];
+
   return (
     <Container maxWidth="xl" sx={{ py: 4, direction: 'rtl' }}>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: 'Almarai' }}>
-                مرحباً، {loginInfo?.UserName || 'المسوق'}
-            </Typography>
-        </Box>
+        <Typography variant="h4" sx={{ fontWeight: 900, fontFamily: 'Almarai' }}>
+            مرحباً، {loginInfo?.UserName || 'المسوق'}
+        </Typography>
         <Button 
           variant="contained" 
-          startIcon={<AddIcon />} 
-        onClick={() => navigate('/اضافة طلب')}
-          sx={{ borderRadius: 2, px: 3, fontWeight: 'bold', fontSize: '1rem' }}
+          startIcon={<AddIcon sx={{ ml: 1 }} />} 
+          onClick={() => navigate('/اضافة طلب')}
+          sx={{ borderRadius: 2, px: 3, fontWeight: 'bold', fontFamily: 'Almarai' }}
         >
           طلبية جديدة
         </Button>
       </Box>
       
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
-          <CircularProgress sx={{ color: 'var(--primary-color)' }} />
-        </Box>
-      ) : error ? (
-        <Typography color="error" align="center">{error}</Typography>
+      {summaryLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}><CircularProgress /></Box>
       ) : (
         <>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={3}>
-              <StatCard 
-                title="أرباحي (العمولة)" 
-                value={`${summary?.DelgAmount || '0.00'} د.ل`} 
-                icon={<AttachMoneyIcon />} 
-                color="#4caf50" 
-              />
+            <Grid item xs={12} md={2.4}>
+              <StatCard title="المدين" value={`${totalDebt.toLocaleString()} د.ل`} icon={<AccountBalanceWalletIcon />} color="#f44336" />
             </Grid>
-            <Grid item xs={12} md={3}>
-              <StatCard 
-                title="طلبات اليوم" 
-                value={summary?.Count_today || 0} 
-                icon={<EqualizerIcon />} 
-                color="#2196f3" 
-              />
+            <Grid item xs={12} md={2.4}>
+              <StatCard title="أرباحي (العمولة)" value={`${totalProfit.toLocaleString()} د.ل`} icon={<AttachMoneyIcon />} color="#4caf50" />
             </Grid>
-            <Grid item xs={12} md={3}>
-              <StatCard 
-                title="إجمالي الطلبيات" 
-                value={summary?.Count || 0} 
-                icon={<EqualizerIcon />} 
-                color="#ff9800" 
-              />
+            <Grid item xs={12} md={2.4}>
+              <StatCard title="طلبات اليوم" value={summary?.Count_today || 0} icon={<EqualizerIcon />} color="#2196f3" />
             </Grid>
-            <Grid item xs={12} md={3}>
-              <StatCard 
-                title="المتاجر المرتبطة" 
-                value={summary?.stores || 0} 
-                icon={<StorefrontIcon />} 
-                color="#9c27b0" 
-              />
+            <Grid item xs={12} md={2.4}>
+              <StatCard title="إجمالي الطلبيات" value={summary?.Count || 0} icon={<EqualizerIcon />} color="#ff9800" />
+            </Grid>
+            <Grid item xs={12} md={2.4}>
+              <StatCard title="المتاجر" value={summary?.stores || 0} icon={<StorefrontIcon />} color="#9c27b0" />
             </Grid>
           </Grid>
 
           <Box sx={{ mt: 5 }}>
-            <Typography variant="h5" sx={{ mb: 2, fontWeight: 700, fontFamily: 'Almarai' }}>
-              آخر الطلبيات المسجلة
-            </Typography>
-            <Paper sx={{ height: 400, width: '100%', borderRadius: 3, overflow: 'hidden', boxShadow: 3 }}>
+            <Typography variant="h5" sx={{ mb: 2, fontWeight: 800, fontFamily: 'Almarai' }}>آخر الطلبيات</Typography>
+            <Paper sx={{ width: '100%', borderRadius: 3, overflow: 'hidden', border: '1px solid #eee' }}>
               <DataGrid
                 rows={safeRows}
                 columns={columns}
                 getRowId={(row) => row.ID}
-                pageSize={5}
+                autoHeight
+                pageSize={10}
                 loading={marketerOrders?.loading}
-                rowsPerPageOptions={[5]}
-                disableSelectionOnClick
+                onRowSelectionModelChange={handleSelection}
                 sx={{
                     border: 'none',
                     fontFamily: 'Almarai',
-                    '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' }
+                    '& .MuiDataGrid-row': { 
+                      cursor: 'pointer',
+                      touchAction: 'manipulation' 
+                    },
+                    '& .MuiDataGrid-cell:focus': {
+                      outline: 'none'
+                    },
+                    '& .MuiDataGrid-columnHeaders': { backgroundColor: '#fafafa' }
                 }}
               />
             </Paper>
           </Box>
         </>
       )}
-
-      <Box sx={{ mt: 5, textAlign: 'center' }}>
-          <Typography variant="body2" color="textSecondary" sx={{ fontFamily: 'Almarai' }}>
-              آخر تحديث للبيانات: {new Date().toLocaleTimeString('ar-LY')}
-          </Typography>
-      </Box>
     </Container>
   );
 };

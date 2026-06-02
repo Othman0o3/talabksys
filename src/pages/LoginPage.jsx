@@ -103,7 +103,7 @@ const LoginPage = () => {
             color: "var(--primary-color)",
           }}
           href="https://fvtion.com/"
-          target="_blank"
+          target="_blank" rel="noreferrer"
         >
           © جميع الحقوق محفوظة لشركة طلبك - تصميم شركة رؤية المستقبل 2023 ©
         </a>
